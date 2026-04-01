@@ -41,3 +41,50 @@ Essas credenciais permitem que o agente:
 O agente utiliza uma chave de API do Google AI Studio para interpretar comandos em linguagem natural e transformar em ações estruturadas.
 
 ## 📦 Estrutura do Projeto
+agent04/
+├── main.py
+├── services/
+├── utils/
+├── .env
+├── .env.example
+└── README.md
+
+
+## 🔐 Configuração
+
+Crie um arquivo `.env` na raiz do projeto com suas credenciais:
+TRELLO_API_KEY=your_key
+TRELLO_TOKEN=your_token
+TRELLO_SECRET=your_secret
+GOOGLE_API_KEY=your_google_api_key
+
+
+> ⚠️ Nunca versione o arquivo `.env`
+
+## ▶️ Como executar
+
+1. Clone o repositório:
+
+```bash
+git clone https://github.com/Reivert/agent-task-manager.git
+
+cd agent-task-manager
+
+pip install -r requirements.txt
+
+python main.py
+
+🎯 Objetivo
+
+Este projeto foi desenvolvido como prática de integração entre IA e APIs externas, demonstrando como agentes inteligentes podem automatizar fluxos operacionais do dia a dia.
+
+💡 Possíveis melhorias
+Interface web ou chatbot (ex: WhatsApp, Telegram)
+Logs estruturados e monitoramento
+Suporte a múltiplos boards
+Autenticação de usuários
+Deploy em ambiente cloud
+
+🧑‍💻 Autor
+
+Reivert Zulato de Paiva
