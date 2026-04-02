@@ -1,5 +1,6 @@
 from google.adk.agents.llm_agent import LlmAgent as Agent
 from trello import TrelloClient
+from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 import os
 
@@ -10,8 +11,27 @@ TRELLO_API_KEY = os.getenv('TRELLO_API_KEY')
 TRELLO_API_SECRET = os.getenv('TRELLO_API_SECRET')
 TRELLO_TOKEN = os.getenv('TRELLO_TOKEN')
 
+def parse_due(due_data: str):
+    # Assumir fuso horário local (ex: Brasil, UTC-3)
+    local_tz = timezone(timedelta(hours=-3))
+    
+    for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y", "%Y/%m/%d"):
+        try:
+            dt_naive = datetime.strptime(due_data, fmt)
+            dt_local = dt_naive.replace(tzinfo=local_tz)
+            dt_utc = dt_local.astimezone(timezone.utc)
+            return dt_utc.isoformat().replace("+00:00", "Z")
+        except ValueError:
+            continue
+    # tenta já em ISO
+    try:
+        dt = datetime.fromisoformat(due_data.replace("Z", "+00:00"))
+        return dt.astimezone(tz=timezone.utc).isoformat().replace("+00:00", "Z")
+    except ValueError:
+        raise ValueError("Formato de data inválido. Use dd/mm/yyyy ou ISO 8601.")
+
 def get_temporal_context():
-    from datetime import datetime
+    #from datetime import datetime
     return f"Hoje é {datetime.now().strftime('%d/%m/%Y')}."
 
 def adicionar_tarefa(nome_da_task: str, descricao_da_tarefa: str, due_data: str):
@@ -29,10 +49,11 @@ def adicionar_tarefa(nome_da_task: str, descricao_da_tarefa: str, due_data: str)
     if not minha_lista:
         raise ValueError("Lista 'TO DO' ou 'A FAZER' não encontrada no board 'DIO'.")
     
+    due_iso = parse_due(due_data)
     minha_lista.add_card(
         name=nome_da_task, 
         desc=descricao_da_tarefa,
-        due=due_data
+        due=due_iso
     )
     return f"Tarefa '{nome_da_task}' adicionada com sucesso ao Trello."
 
@@ -138,6 +159,7 @@ root_agent = Agent(
     tools=[
         adicionar_tarefa,
         listar_tarefas,
+        mudar_status_tarefa,
         get_temporal_context
     ]
 )
